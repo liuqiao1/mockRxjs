@@ -1,4 +1,6 @@
 import { Observable } from "./Observable";
+import { delay } from "./operators/delay";
+import { map } from "./operators/map";
 import { Subject } from "./Subject";
 import { Subscriber } from "./Subscriber";
 
@@ -131,7 +133,7 @@ describe("V2:Subscription", () => {
   });
 });
 
-fdescribe("V3: Subject", () => {
+describe("V3: Subject", () => {
   test("basic", (done) => {
     let output: string[] = [];
     const next = (lightColor?: string) => {
@@ -158,5 +160,32 @@ fdescribe("V3: Subject", () => {
       expect(output).toEqual(["stop", "stop", "stop", "go", "go", "go"]);
       done();
     }, 3000);
+  });
+});
+
+fdescribe("V4: Operators", () => {
+  test("basic", (done) => {
+    const streetLamp = new Observable((subscriber: Subscriber<string>) => {
+      console.info("send", new Date().toLocaleString());
+      subscriber.next("red");
+    });
+
+    const cautiousMan = new Subscriber<string>((color: string | undefined) => {
+      console.info("recieve", new Date().toLocaleString());
+
+      expect(color).toEqual("green");
+      done();
+    });
+
+    streetLamp
+      .pipe(
+        delay(2000),
+        map((color: string) => {
+          if (color === "red") return "green";
+          if (color === "green") return "red";
+          return color;
+        })
+      )
+      .subscribe(cautiousMan);
   });
 });
