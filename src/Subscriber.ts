@@ -1,15 +1,30 @@
 export class Subscriber<T> {
-  next: (v?: T) => void;
+  _next: (v?: T) => void;
   error: (err?: any) => void = () => {};
-  complete: () => void = () => {};
+  _complete: () => void = () => {};
+
+  isComplete = false;
 
   constructor(
     next: (v?: T) => void,
     error?: (err?: any) => void,
     complete?: () => void
   ) {
-    this.next = next;
+    this._next = next;
     if (error) this.error = error;
-    if (complete) this.complete = complete;
+    if (complete) this._complete = complete;
+  }
+
+  next(params: any) {
+    if (this.isComplete) return;
+    this._next(params);
+  }
+
+  complete() {
+    if (this.isComplete) return;
+    {
+      this._complete();
+      this.isComplete = true;
+    }
   }
 }
