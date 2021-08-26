@@ -1,7 +1,7 @@
 export class Subscriber<T> {
-  private next: (v?: T) => void;
-  private error: (err?: any) => void = () => {};
-  private complete: () => void = () => {};
+  next: (v?: T) => void;
+  error: (err?: any) => void = () => {};
+  complete: () => void = () => {};
 
   constructor(
     next: (v?: T) => void,
