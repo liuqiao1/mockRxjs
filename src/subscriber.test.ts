@@ -156,6 +156,7 @@ fdescribe("V3: Subject", () => {
     setTimeout(() => {
       streetLamp.next("green");
       expect(output).toEqual(["stop", "stop", "stop", "go", "go", "go"]);
+      done();
     }, 3000);
   });
 });

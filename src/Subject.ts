@@ -23,6 +23,9 @@ export class Subject<T> {
     }
 
     this.subscribers.push(subscriber);
-    return new Subscription();
+  }
+
+  unsubscribe(subscriber: Subscriber<T>) {
+    // find subscriber and remove from subscribers
   }
 }
