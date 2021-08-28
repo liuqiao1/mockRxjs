@@ -1,24 +1,26 @@
 import { TeardownLogic, Unsubscribable } from "./types";
-import { isFunction } from "./utils";
+import { arrRemove, isFunction } from "./utils";
 
 export class Subscription {
-  _unSubscribeCallback: TeardownLogic;
   isUnsubscribed = false;
   private _teardowns: Exclude<TeardownLogic, void>[] | null = null;
   private _parentage: Subscription[] | Subscription | null = null;
 
-  constructor(unSubscribeCallback: TeardownLogic) {
-    if (unSubscribeCallback) this._unSubscribeCallback = unSubscribeCallback;
-  }
+  constructor() {}
 
   unsubscribe() {
     if (this.isUnsubscribed) {
       return;
     }
-    if (isFunction(this._unSubscribeCallback)) {
-      this._unSubscribeCallback();
-    }
     this.isUnsubscribed = true;
+
+    if (Array.isArray(this._parentage)) {
+      for (const parent of this._parentage) {
+        parent.remove(this);
+      }
+    } else if (isSubscription(this._parentage)) {
+      this._parentage.remove(this);
+    }
 
     if (Array.isArray(this._teardowns)) {
       this._teardowns.forEach((teardown) => {
@@ -37,7 +39,23 @@ export class Subscription {
     return this;
   }
 
-  remove(subscription: Subscription) {}
+  remove(teardown: Exclude<TeardownLogic, void>): void {
+    const { _teardowns } = this;
+    _teardowns && arrRemove(_teardowns, teardown);
+
+    if (teardown instanceof Subscription) {
+      teardown._removeParent(this);
+    }
+  }
+
+  private _removeParent(parent: Subscription) {
+    const { _parentage } = this;
+    if (_parentage === parent) {
+      this._parentage = null;
+    } else if (Array.isArray(_parentage)) {
+      arrRemove(_parentage, parent);
+    }
+  }
 
   private _addParent(parent: Subscription) {
     const { _parentage } = this;

@@ -190,7 +190,7 @@ describe("V4: Operators", () => {
   });
 });
 
-fdescribe("V5: Subscriber extends Subscription", () => {
+describe("V5: Subscriber extends Subscription", () => {
   let output: string[] = [];
   let passerBy: Subscriber<string>;
   let streetLamp: Observable<string>;
