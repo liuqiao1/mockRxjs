@@ -44,7 +44,7 @@ describe("V1: Observable & Subscriber", () => {
   });
 });
 
-describe("V2:Subscription", () => {
+fdescribe("V2:Subscription", () => {
   test("basic", (done) => {
     let output: string[] = [];
 
@@ -163,7 +163,7 @@ describe("V3: Subject", () => {
   });
 });
 
-fdescribe("V4: Operators", () => {
+describe("V4: Operators", () => {
   test("basic", (done) => {
     const streetLamp = new Observable((subscriber: Subscriber<string>) => {
       console.info("send", new Date().toLocaleString());
@@ -187,5 +187,29 @@ fdescribe("V4: Operators", () => {
         })
       )
       .subscribe(cautiousMan);
+  });
+});
+
+fdescribe("V5: Subscriber extends Subscription", () => {
+  let output: string[] = [];
+  let passerBy: Subscriber<string>;
+  let streetLamp: Observable<string>;
+  beforeEach(() => {
+    output = [];
+    passerBy = new Subscriber<string>((v) => {
+      if (v) output.push(v);
+    });
+
+    streetLamp = new Observable<string>((subscriber) => {
+      subscriber.next("red");
+    });
+  });
+  test("basic", () => {
+    streetLamp.subscribe(passerBy);
+
+    expect(output).toEqual(["red"]);
+    passerBy.unsubscribe();
+    streetLamp.subscribe(passerBy);
+    expect(output).toEqual(["red"]);
   });
 });

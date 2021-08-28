@@ -1,27 +1,25 @@
 import { Subscriber } from "./Subscriber";
 import { Subscription } from "./Subscription";
+import { TeardownLogic } from "./types";
 
 type operate = (observable: Observable<any>) => Observable<any>;
 export class Observable<T> {
-  private _subscribe: (subscriber: Subscriber<T>) => void | CallBack;
+  private _subscribe: (subscriber: Subscriber<T>) => TeardownLogic;
 
-  private subscription: Subscription | undefined;
+  private _subscriber: Subscriber<T> | undefined;
 
-  constructor(subscribe: (subscriber: Subscriber<T>) => void | CallBack) {
+  constructor(subscribe: (subscriber: Subscriber<T>) => TeardownLogic) {
     this._subscribe = subscribe;
   }
 
   subscribe(subscriber: Subscriber<T>): Subscription {
-    if (
-      typeof this._subscribe !== "function" ||
-      this.subscription?.isUnsubscribed
-    ) {
-      return new Subscription();
+    if (this._subscriber?.isUnsubscribed) {
+      return subscriber;
     }
 
-    const unSubscribeCallback = this._subscribe(subscriber);
-    this.subscription = new Subscription(unSubscribeCallback);
-    return this.subscription;
+    this._subscriber = subscriber;
+    subscriber.add(this._subscribe(subscriber));
+    return subscriber;
   }
 
   /**
