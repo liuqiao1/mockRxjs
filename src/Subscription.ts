@@ -10,8 +10,10 @@ export class Subscription {
 
   unsubscribe() {
     if (this.isUnsubscribed) {
+      console.error("stop", this);
       return;
     }
+
     this.isUnsubscribed = true;
 
     if (Array.isArray(this._parentage)) {
@@ -22,8 +24,10 @@ export class Subscription {
       this._parentage.remove(this);
     }
 
-    if (Array.isArray(this._teardowns)) {
-      this._teardowns.forEach((teardown) => {
+    const { _teardowns } = this;
+
+    if (Array.isArray(_teardowns)) {
+      [..._teardowns].forEach((teardown, index) => {
         execTeardown(teardown);
       });
     }

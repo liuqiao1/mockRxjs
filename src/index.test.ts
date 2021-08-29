@@ -10,10 +10,8 @@ describe("V1: Observable & Subscriber", () => {
 
     const next = (lightColor?: string) => {
       if (lightColor === "green") {
-        console.log("go");
         output.push("go");
       } else {
-        console.log("stop");
         output.push("stop");
       }
     };
@@ -22,7 +20,6 @@ describe("V1: Observable & Subscriber", () => {
       output.push("wait");
     };
     const complete = () => {
-      console.log("done");
       output.push("done");
     };
     const passerBy = new Subscriber<string>(next, error, complete);
@@ -44,16 +41,14 @@ describe("V1: Observable & Subscriber", () => {
   });
 });
 
-fdescribe("V2:Subscription", () => {
+describe("V2:Subscription", () => {
   test("basic", (done) => {
     let output: string[] = [];
 
     const next = (lightColor?: string) => {
       if (lightColor === "green") {
-        console.log("go");
         output.push("go");
       } else {
-        console.log("stop");
         output.push("stop");
       }
     };
@@ -62,7 +57,6 @@ fdescribe("V2:Subscription", () => {
       output.push("wait");
     };
     const complete = () => {
-      console.log("done");
       output.push("done");
     };
     const passerBy = new Subscriber<string>(next, error, complete);
@@ -100,6 +94,7 @@ fdescribe("V2:Subscription", () => {
     const myFriendJane = new Subscriber((color) => {
       output.push(`Jane see ${color}`);
     });
+
     const myFriendTom = new Subscriber((color) => {
       output.push(`Tom see ${color}`);
     });
@@ -108,16 +103,16 @@ fdescribe("V2:Subscription", () => {
       subscriber.next("red");
 
       return () => {
-        // subscriber has no indetification?
         output.push(`unsubscribe`);
       };
     });
 
-    streeyLamp
-      .subscribe(me)
-      .add(streeyLamp.subscribe(myFriendJane))
-      .add(streeyLamp.subscribe(myFriendTom))
-      .unsubscribe();
+    streeyLamp.subscribe(me);
+
+    me.add(streeyLamp.subscribe(myFriendJane));
+    me.add(streeyLamp.subscribe(myFriendTom));
+
+    me.unsubscribe();
 
     expect(output).toEqual([
       "I see red",
@@ -158,6 +153,10 @@ describe("V3: Subject", () => {
     setTimeout(() => {
       streetLamp.next("green");
       expect(output).toEqual(["stop", "stop", "stop", "go", "go", "go"]);
+      streetLamp.unsubscribe();
+
+      expect(() => streetLamp.next("red")).toThrow();
+
       done();
     }, 3000);
   });

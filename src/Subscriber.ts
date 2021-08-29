@@ -20,7 +20,11 @@ export class Subscriber<T> extends Subscription {
 
   unsubscribe() {
     if (this.isComplete) return;
-    super.unsubscribe();
+    try {
+      super.unsubscribe();
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   next(params: any) {
